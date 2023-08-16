@@ -23,7 +23,6 @@ class ProductsController extends Controller
                 'product_category_id' => $product->category->id,
                 'product_category' => $product->category->category_name,
                 'product_description' => $product->product_description,
-                // You can add more fields as needed
             ];
         }
 
