@@ -12,13 +12,34 @@ class CategoriesController extends Controller
     // shows all the category
     public function index()
     {
-        $categories = Category::paginate(20);
+        $categories = Category::paginate(10);
+
+        $formattedCategories = [];
+        foreach ($categories as $category) {
+            $formattedCategories[] = [
+                'category_id' => $category->id,
+                'category_name' => $category->category_name,
+                'category_description' => $category->category_description,
+            ];
+        }
 
         if($categories->count() > 0) {
             return response()->json([
                 'status_code' => 200,
                 'message' => 'OK',
-                'data' => $categories,
+                'data' => $formattedCategories,
+                'meta' => [
+                    'pagination' => [
+                        'total' => $categories->total(),
+                        'count' => $categories->count(),
+                        'per_page' => $categories->perPage(),
+                        'current_page' => $categories->currentPage(),
+                        'total_pages' => $categories->lastPage(),
+                        'links' => [
+                            'next' => $categories->nextPageUrl(),
+                        ],
+                    ],
+                ],
             ], 200);
         } else {
             return response()->json([

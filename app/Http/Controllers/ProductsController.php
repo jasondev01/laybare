@@ -122,6 +122,61 @@ class ProductsController extends Controller
         ], 200);
     }
 
+    // update a product
+    public function update(Request $request, $id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'status_code' => 404,
+                'message' => 'Product not found',
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'product_name' => 'required|string|max:255',
+            'product_sku' => [
+                'required',
+                Rule::unique('products')->ignore($product->id),
+                'string',
+                'max:255',
+            ],
+            'category_id' => 'required|exists:categories,id',
+            'product_description' => 'nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 422,
+                'message' => 'Validation error',
+                'errors' => $validator->messages(),
+            ], 422);
+        } else {
+            $product->update([
+                'product_name' => $request->product_name,
+                'product_sku' => $request->product_sku,
+                'category_id' => $request->category_id,
+                'product_description' => $request->product_description,
+            ]);
+
+            $data = [
+                'product_id' => $product->id,
+                'product_name' => $product->product_name,
+                'product_sku' => $product->product_sku,
+                'product_category_id' => $product->category_id,
+                'product_category' => $product->category->category_name,
+                'product_description' => $product->product_description,
+            ];
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Product updated successfully',
+                'data' => $data,
+            ], 200);
+        }
+    }
+
     // soft deletes a product
     public function softDelete($id)
     {
