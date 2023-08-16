@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -18,6 +20,38 @@ class UsersController extends Controller
             'message' => 'OK',
             'data' => $users,
         ], 200);
+    }
+
+    // store a user
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string',
+            'middle_name' => 'nullable|string',
+            'last_name' => 'required|string',
+            'username' => 'required|string|unique:users,username',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 400,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = new User();
+        $user->fill($request->all());
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+        return response()->json([
+            'status_code' => 201,
+            'message' => 'User created successfully',
+            'data' => $user,
+        ], 201);
     }
 
     // show a single user

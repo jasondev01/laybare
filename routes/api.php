@@ -41,6 +41,7 @@ Route::patch('/products/{id}', [ProductsController::class, 'restore']);
 
 // users
 Route::get('/users', [UsersController::class, 'index']);
+Route::post('/users', [UsersController::class, 'store']);
 Route::get('/users/{id}', [UsersController::class, 'show']);
 Route::patch('/users/{id}', [UsersController::class, 'update']);
 Route::delete('/users/{id}', [UsersController::class, 'softDelete']);
